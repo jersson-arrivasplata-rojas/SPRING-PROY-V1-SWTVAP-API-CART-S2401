@@ -24,40 +24,52 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Flux<Cart> getAllCarts() {
-        return Flux.fromIterable(cartRepository.findAll());
+        return Flux.fromIterable(cartRepository.findAll()).map(cart -> {
+            cart.setCartDetails(null);
+            return cart;
+        });
     }
 
     public Mono<Cart> getCartById(Long id) {
-        return Mono.just(cartRepository.findById(id)
+        return Mono.just(cartRepository.findById(id).map(cart -> {
+                    cart.setCartDetails(null);
+                    return cart;
+                })
                 .orElseThrow(() -> new CustomException("Cart not found with id: " + id)));
     }
 
     public Mono<Cart> createCart(Cart cart) {
-        // Lógica para crear un nuevo carto
+        // Lógica para crear un nuevo cart
         if (cart.getCode() == null || cart.getCode().isEmpty()) {
             throw new CustomException("Cart name is required.");
         }
-        // Resto de la lógica para crear un carto
+        // Resto de la lógica para crear un cart
         return Mono.just(cartRepository.save(cart));
     }
 
     public Mono<Cart> updateCart(Cart cart) {
-        // Lógica para actualizar un carto
+        if (cart.getCartId() == null) {
+            throw new CustomException("Cart ID is required for updating.");
+        }
+        // Lógica para actualizar un cart
         if (cart.getCode() == null || cart.getCode().isEmpty()) {
             throw new CustomException("Cart name is required.");
         }
-        // Resto de la lógica para actualizar un carto
+        // Resto de la lógica para actualizar un cart
         return Mono.just(cartRepository.save(cart));
     }
 
     public Mono<Void> deleteCartById(Long id) {
-        // Lógica para eliminar un carto
-        Optional<Cart> cart = cartRepository.findById(id);
-        if (!cart.isPresent()) {
+        // Lógica para eliminar un cart
+        Optional<Cart> cartOptional = cartRepository.findById(id);
+        if (!cartOptional.isPresent()) {
             throw new CustomException("Cart not found with id: " + id);
         }
         // Resto de la lógica para eliminar un cart
-        cartRepository.deleteById(id);
+
+        Cart cart = cartOptional.get();
+        cart.setStatus(Status.INACTIVE);
+        cartRepository.save(cart);
 
         return Mono.empty();
     }

@@ -25,7 +25,10 @@ public class Cart {
     @Column(name = "cart_date")
     private LocalDate cartDate;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Enumerated(EnumType.ORDINAL)
+    private Status status;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<CartDetail> cartDetails;
 }

@@ -7,6 +7,7 @@ import com.jersson.arrivasplata.swtvap.api.cart.mapper.CartMapper;
 import com.jersson.arrivasplata.swtvap.api.cart.model.Cart;
 import com.jersson.arrivasplata.swtvap.api.cart.model.CartRequest;
 import com.jersson.arrivasplata.swtvap.api.cart.model.CartResponse;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -29,8 +30,10 @@ public class CartControllerImpl implements CartController {
     public Flux<CartResponse> getAllCarts() {
         return cartService.getAllCarts()
                 .map(cart -> {
-                    CartResponse cartResponse = cartMapper.cartToCartResponse(cart);
-                    return cartResponse;
+                    CartResponse cartWithoutPropertyResponse = new CartResponse();
+                    BeanUtils.copyProperties(cart, cartWithoutPropertyResponse, "cardDetails");
+
+                    return cartWithoutPropertyResponse;
                 });
     }
 
@@ -39,33 +42,42 @@ public class CartControllerImpl implements CartController {
     public Mono<CartResponse> getCartById(@PathVariable Long id) {
         return cartService.getCartById(id)
                 .map(cart -> {
-                    CartResponse cartResponse = cartMapper.cartToCartResponse(cart);
-                    return cartResponse;
+                    CartResponse cartWithoutPropertyResponse = new CartResponse();
+                    BeanUtils.copyProperties(cart, cartWithoutPropertyResponse, "cardDetails");
 
+                    return cartWithoutPropertyResponse;
                 });
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<CartResponse> createCart(@RequestBody CartRequest cartRequest) {
-        Cart cart = cartMapper.cartRequestToCart(cartRequest);
+        Cart cart = new Cart();
+        BeanUtils.copyProperties(cartRequest, cart, "cardDetails");
 
         return cartService.createCart(cart)
                 .map(newCart -> {
-                    CartResponse cartResponse = cartMapper.cartToCartResponse(newCart);
-                    return cartResponse;
+                    CartResponse cartWithoutPropertyResponse = new CartResponse();
+                    BeanUtils.copyProperties(cart, cartWithoutPropertyResponse, "cardDetails");
+
+                    return cartWithoutPropertyResponse;
                 });
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<CartResponse> updateCart(@PathVariable Long id, @RequestBody CartRequest cartRequest) {
-        Cart cart = cartMapper.cartRequestToCart(cartRequest);
-        cart.setCartId(id);
+
+        cartRequest.setCartId(id);
+        Cart cart = new Cart();
+        BeanUtils.copyProperties(cartRequest, cart, "cardDetails");
+
         return cartService.updateCart(cart)
                 .map(updatedCart -> {
-                    CartResponse cartResponse = cartMapper.cartToCartResponse(updatedCart);
-                    return cartResponse;
+                    CartResponse cartWithoutPropertyResponse = new CartResponse();
+                    BeanUtils.copyProperties(cart, cartWithoutPropertyResponse, "cardDetails");
+
+                    return cartWithoutPropertyResponse;
                 });
     }
 
