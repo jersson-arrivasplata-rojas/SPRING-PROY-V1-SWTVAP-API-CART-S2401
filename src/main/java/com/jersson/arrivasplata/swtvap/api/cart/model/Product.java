@@ -30,7 +30,7 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "price", precision = 10, scale = 2)
+    @Column(name = "price", precision = 50, scale = 10)
     private BigDecimal price;
 
     @Column(name = "stock")
