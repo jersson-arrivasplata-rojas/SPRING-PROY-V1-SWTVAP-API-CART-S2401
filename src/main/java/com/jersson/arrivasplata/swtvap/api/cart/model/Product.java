@@ -30,6 +30,13 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "name_en", length = 200)
+    private String name_en;
+
+    @Column(columnDefinition = "TEXT")
+    private String description_en;
+
+
     @Column(name = "price", precision = 50, scale = 10)
     private BigDecimal price;
 
@@ -41,6 +48,9 @@ public class Product {
 
     @Column(columnDefinition = "TEXT")
     private String otherDetails;
+
+    @Column(columnDefinition = "TEXT")
+    private String otherDetails_en;
 
     @Enumerated(EnumType.ORDINAL)
     private Status status;
